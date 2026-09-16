@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
 
-//import siteConfiguration from './.figma/make/site.json'
+// import siteConfiguration from './.figma/make/site.json'
 
 // Vite config — https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -11,7 +11,9 @@ export default defineConfig(({ mode }) => {
   const emitSourcemaps = mode === 'development'
 
   return {
-    base: process.env.FIGMA_PUBLIC_URL ? `${process.env.FIGMA_PUBLIC_URL}/` : '/',
+    base: process.env.FIGMA_PUBLIC_URL
+      ? `${process.env.FIGMA_PUBLIC_URL}/`
+      : '/',
     build: {
       sourcemap: emitSourcemaps ? 'inline' : false,
       minify: !emitSourcemaps,
@@ -19,14 +21,12 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tailwindcss(),
-<<<<<<< HEAD
       // figmaSiteConfiguration(siteConfiguration),
-=======
-      //figmaSiteConfiguration(siteConfiguration),
->>>>>>> 5c3289d4e11dd8f3ebfede4f3943a0906ba9684f
       figmaErrorOverlayReplay(),
       figmaReactRefreshBoundaryFallback(),
-      figmaMakeKitPlugin({ storiesGlob: '/src/**/*.stories.{ts,tsx,js,jsx}' }),
+      figmaMakeKitPlugin({
+        storiesGlob: '/src/**/*.stories.{ts,tsx,js,jsx}',
+      }),
     ],
     resolve: {
       alias: {
@@ -40,7 +40,7 @@ export default defineConfig(({ mode }) => {
       watch: {
         ignored: [
           '**/.figma/**',
-],
+        ],
       },
     },
     preview: {
@@ -82,35 +82,59 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
   function sanitizeHtmlValue(value: string | undefined): string {
     return value?.replace(/[^a-zA-Z0-9_-]/g, '') || ''
   }
+
   function escapeHtmlText(value: string): string {
-    return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
   }
-  function replaceHtmlCommentSlot(html: string, slotName: string, content: string): string {
+
+  function replaceHtmlCommentSlot(
+    html: string,
+    slotName: string,
+    content: string,
+  ): string {
     return html.replace(`<!-- ${slotName} -->`, content)
   }
 
-  const title = config.title ?? "Figma Make App"
+  const title = config.title ?? 'Figma Make App'
   const description = config.description ?? ''
   const favicon = config.icons?.icon ?? ''
   const socialImage = config.openGraph?.image ?? ''
   const language = sanitizeHtmlValue(config.language) || 'en'
-  const googleAnalyticsId = sanitizeHtmlValue(config.analytics?.googleAnalyticsId)
+  const googleAnalyticsId = sanitizeHtmlValue(
+    config.analytics?.googleAnalyticsId,
+  )
   const headStart = config.customScripts?.headStart ?? ''
   const headEnd = config.customScripts?.headEnd ?? ''
   const bodyStart = config.customScripts?.bodyStart ?? ''
   const bodyEnd = config.customScripts?.bodyEnd ?? ''
-  const robotsTxt = config.robots?.index === false ? 'User-agent: *\nDisallow: /\n' : ''
+  const robotsTxt =
+    config.robots?.index === false
+      ? 'User-agent: *\nDisallow: /\n'
+      : ''
 
   return {
     name: 'figma-site-configuration',
+
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        if (!robotsTxt || req.url?.split('?')[0] !== '/robots.txt') return next()
+        if (
+          !robotsTxt ||
+          req.url?.split('?')[0] !== '/robots.txt'
+        ) {
+          return next()
+        }
 
-        res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+        res.setHeader(
+          'Content-Type',
+          'text/plain; charset=utf-8',
+        )
         res.end(robotsTxt)
       })
     },
+
     generateBundle() {
       if (!robotsTxt) return
 
@@ -120,38 +144,132 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
         source: robotsTxt,
       })
     },
+
     transformIndexHtml: {
       order: 'pre',
+
       handler(html) {
         let result = html
-        result = replaceHtmlCommentSlot(result, 'figma:lang', language)
-        result = replaceHtmlCommentSlot(result, 'figma:title', escapeHtmlText(title))
-        result = replaceHtmlCommentSlot(result, 'figma:head-start', headStart)
-        result = replaceHtmlCommentSlot(result, 'figma:head-end', headEnd)
-        result = replaceHtmlCommentSlot(result, 'figma:body-start', bodyStart)
-        result = replaceHtmlCommentSlot(result, 'figma:body-end', bodyEnd)
+
+        result = replaceHtmlCommentSlot(
+          result,
+          'figma:lang',
+          language,
+        )
+
+        result = replaceHtmlCommentSlot(
+          result,
+          'figma:title',
+          escapeHtmlText(title),
+        )
+
+        result = replaceHtmlCommentSlot(
+          result,
+          'figma:head-start',
+          headStart,
+        )
+
+        result = replaceHtmlCommentSlot(
+          result,
+          'figma:head-end',
+          headEnd,
+        )
+
+        result = replaceHtmlCommentSlot(
+          result,
+          'figma:body-start',
+          bodyStart,
+        )
+
+        result = replaceHtmlCommentSlot(
+          result,
+          'figma:body-end',
+          bodyEnd,
+        )
 
         const tags: HtmlTagDescriptor[] = []
+
         if (description) {
-          tags.push({ tag: 'meta', attrs: { name: 'description', content: description }, injectTo: 'head' })
+          tags.push({
+            tag: 'meta',
+            attrs: {
+              name: 'description',
+              content: description,
+            },
+            injectTo: 'head',
+          })
         }
+
         if (config.robots?.index === false) {
-          tags.push({ tag: 'meta', attrs: { name: 'robots', content: 'noindex, nofollow' }, injectTo: 'head' })
+          tags.push({
+            tag: 'meta',
+            attrs: {
+              name: 'robots',
+              content: 'noindex, nofollow',
+            },
+            injectTo: 'head',
+          })
         }
+
         if (favicon) {
-          tags.push({ tag: 'link', attrs: { rel: 'icon', href: favicon }, injectTo: 'head' })
+          tags.push({
+            tag: 'link',
+            attrs: {
+              rel: 'icon',
+              href: favicon,
+            },
+            injectTo: 'head',
+          })
         }
+
         if (title) {
-          tags.push({ tag: 'meta', attrs: { property: 'og:title', content: title }, injectTo: 'head' })
+          tags.push({
+            tag: 'meta',
+            attrs: {
+              property: 'og:title',
+              content: title,
+            },
+            injectTo: 'head',
+          })
         }
+
         if (description) {
-          tags.push({ tag: 'meta', attrs: { property: 'og:description', content: description }, injectTo: 'head' })
+          tags.push({
+            tag: 'meta',
+            attrs: {
+              property: 'og:description',
+              content: description,
+            },
+            injectTo: 'head',
+          })
         }
+
         if (socialImage) {
           tags.push(
-            { tag: 'meta', attrs: { property: 'og:image', content: socialImage }, injectTo: 'head' },
-            { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' }, injectTo: 'head' },
-            { tag: 'meta', attrs: { name: 'twitter:image', content: socialImage }, injectTo: 'head' },
+            {
+              tag: 'meta',
+              attrs: {
+                property: 'og:image',
+                content: socialImage,
+              },
+              injectTo: 'head',
+            },
+            {
+              tag: 'meta',
+              attrs: {
+                name: 'twitter:card',
+                content: 'summary_large_image',
+              },
+              injectTo: 'head',
+            },
+            {
+              tag: 'meta',
+              attrs: {
+                name: 'twitter:image',
+                content: socialImage,
+              },
+              injectTo: 'head',
+            },
           )
         }
 
@@ -196,6 +314,7 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
     font: 600 14px/1.2 system-ui, sans-serif;
     text-decoration: none;
   }
+
   .figma-bypass-link:focus {
     transform: translateY(0);
   }
@@ -204,7 +323,10 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
             },
             {
               tag: 'a',
-              attrs: { class: 'figma-bypass-link', href: '#root' },
+              attrs: {
+                class: 'figma-bypass-link',
+                href: '#root',
+              },
               children: 'Skip to content',
               injectTo: 'body-prepend',
             },
@@ -237,20 +359,34 @@ function figmaErrorOverlayReplay(): Plugin {
   return {
     name: 'figma-error-overlay-replay',
     apply: 'serve',
+
     configureServer(server) {
       let lastError: object | null = null
 
-      const origSend = server.ws.send.bind(server.ws) as (...args: any[]) => void
+      const origSend = server.ws.send.bind(server.ws) as (
+        ...args: any[]
+      ) => void
+
       server.ws.send = ((...args: any[]) => {
         const payload = args[0]
-        if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+
+        if (
+          payload &&
+          typeof payload === 'object' &&
+          !Array.isArray(payload)
+        ) {
           const type = (payload as { type?: string }).type
+
           if (type === 'error') {
             lastError = payload as object
-          } else if (type === 'update' || type === 'full-reload') {
+          } else if (
+            type === 'update' ||
+            type === 'full-reload'
+          ) {
             lastError = null
           }
         }
+
         return origSend(...args)
       }) as typeof server.ws.send
 
@@ -264,16 +400,17 @@ function figmaErrorOverlayReplay(): Plugin {
 }
 
 /**
- * Reload when a module that previously defined a React Refresh boundary stops
- * defining one. This happens when an agent moves a component into a new file
- * and replaces the old module with a re-export:
+ * Reload when a module that previously defined a React Refresh boundary
+ * stops defining one. This happens when an agent moves a component into
+ * a new file and replaces the old module with a re-export:
  *
  *   export { default } from './app/App'
  *
- * Vite otherwise accepts the update using the previous module's HMR boundary,
- * but the re-export-only transform no longer registers a replacement for the
- * mounted component family. React reports a successful refresh while leaving
- * the old tree mounted until the page is reloaded.
+ * Vite otherwise accepts the update using the previous module's HMR
+ * boundary, but the re-export-only transform no longer registers a
+ * replacement for the mounted component family. React reports a
+ * successful refresh while leaving the old tree mounted until the
+ * page is reloaded.
  */
 function figmaReactRefreshBoundaryFallback(): Plugin {
   const hadRefreshBoundary = new Map<string, boolean>()
@@ -283,18 +420,38 @@ function figmaReactRefreshBoundaryFallback(): Plugin {
     name: 'figma-react-refresh-boundary-fallback',
     apply: 'serve',
     enforce: 'post',
+
     configureServer(server) {
-      sendFullReload = () => server.ws.send({ type: 'full-reload', path: '*' })
+      sendFullReload = () =>
+        server.ws.send({
+          type: 'full-reload',
+          path: '*',
+        })
     },
+
     transform(code, id) {
-      if (!/\.[jt]sx?(?:\?|$)/.test(id) || id.includes('/node_modules/')) return null
+      if (
+        !/\.[jt]sx?(?:\?|$)/.test(id) ||
+        id.includes('/node_modules/')
+      ) {
+        return null
+      }
 
       const moduleId = id.split('?')[0] ?? id
-      const hasRefreshBoundary = code.includes('registerExportsForReactRefresh')
-      const previousHadRefreshBoundary = hadRefreshBoundary.get(moduleId)
-      hadRefreshBoundary.set(moduleId, hasRefreshBoundary)
+      const hasRefreshBoundary =
+        code.includes('registerExportsForReactRefresh')
+      const previousHadRefreshBoundary =
+        hadRefreshBoundary.get(moduleId)
 
-      if (previousHadRefreshBoundary && !hasRefreshBoundary) {
+      hadRefreshBoundary.set(
+        moduleId,
+        hasRefreshBoundary,
+      )
+
+      if (
+        previousHadRefreshBoundary &&
+        !hasRefreshBoundary
+      ) {
         queueMicrotask(() => sendFullReload?.())
       }
 
@@ -314,12 +471,21 @@ function figmaReactRefreshBoundaryFallback(): Plugin {
  * builds (`vite build`) skip it entirely so the route doesn't leak
  * into shipped bundles.
  */
-function figmaMakeKitPlugin(options: { storiesGlob: string | string[] }): Plugin {
-  const storiesGlob = Array.isArray(options.storiesGlob) ? options.storiesGlob : [options.storiesGlob]
+function figmaMakeKitPlugin(options: {
+  storiesGlob: string | string[]
+}): Plugin {
+  const storiesGlob = Array.isArray(options.storiesGlob)
+    ? options.storiesGlob
+    : [options.storiesGlob]
+
   const ROUTE = '/.figma/make/kit.html'
   const VIRTUAL_ID = 'virtual:figma-stories'
   const RESOLVED_ID = '\0' + VIRTUAL_ID
-  const STORIES_MODULE = `export const stories = import.meta.glob(${JSON.stringify(storiesGlob)})`
+
+  const STORIES_MODULE = `export const stories = import.meta.glob(${JSON.stringify(
+    storiesGlob,
+  )})`
+
   const HTML_BOOTSTRAP = `<!doctype html>
 <html lang="en">
 <head>
@@ -339,26 +505,51 @@ function figmaMakeKitPlugin(options: { storiesGlob: string | string[] }): Plugin
   return {
     name: 'figma-make-kit',
     apply: 'serve',
+
     resolveId(id) {
-      if (id === VIRTUAL_ID) return RESOLVED_ID
+      if (id === VIRTUAL_ID) {
+        return RESOLVED_ID
+      }
+
       return null
     },
+
     load(id) {
-      if (id !== RESOLVED_ID) return null
+      if (id !== RESOLVED_ID) {
+        return null
+      }
+
       return STORIES_MODULE
     },
-    configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
-        const url = req.url || ''
-        if (url.split('?')[0] !== ROUTE) return next()
 
-        try {
-          res.setHeader('Content-Type', 'text/html')
-          res.end(await server.transformIndexHtml(url, HTML_BOOTSTRAP))
-        } catch (err) {
-          next(err as Error)
-        }
-      })
+    configureServer(server) {
+      server.middlewares.use(
+        async (req, res, next) => {
+          const url = req.url || ''
+
+          if (
+            url.split('?')[0] !== ROUTE
+          ) {
+            return next()
+          }
+
+          try {
+            res.setHeader(
+              'Content-Type',
+              'text/html',
+            )
+
+            res.end(
+              await server.transformIndexHtml(
+                url,
+                HTML_BOOTSTRAP,
+              ),
+            )
+          } catch (err) {
+            next(err as Error)
+          }
+        },
+      )
     },
   }
 }
