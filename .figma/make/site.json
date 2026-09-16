@@ -1,0 +1,10 @@
+{
+  "description": "Streamlines public-service applications by assessing submitted evidence, identifying issues, explaining decisions, and guiding users on next steps.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
