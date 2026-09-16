@@ -19,7 +19,11 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tailwindcss(),
+<<<<<<< HEAD
       // figmaSiteConfiguration(siteConfiguration),
+=======
+      //figmaSiteConfiguration(siteConfiguration),
+>>>>>>> 5c3289d4e11dd8f3ebfede4f3943a0906ba9684f
       figmaErrorOverlayReplay(),
       figmaReactRefreshBoundaryFallback(),
       figmaMakeKitPlugin({ storiesGlob: '/src/**/*.stories.{ts,tsx,js,jsx}' }),
